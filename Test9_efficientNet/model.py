@@ -172,6 +172,26 @@ class InvertedResidual(nn.Module):
         return result
 
 
+class SqueezeExcitation(nn.Module):
+    def __init__(self,
+                 input_c: int,   # block input channel
+                 expand_c: int,  # block expand channel
+                 squeeze_factor: int = 4):
+        super(SqueezeExcitation, self).__init__()
+        squeeze_c = input_c // squeeze_factor
+        self.fc1 = nn.Conv2d(expand_c, squeeze_c, 1)
+        self.ac1 = nn.SiLU()  # alias Swish
+        self.fc2 = nn.Conv2d(squeeze_c, expand_c, 1)
+        self.ac2 = nn.Sigmoid()
+
+    def forward(self, x: Tensor) -> Tensor:
+        scale = F.adaptive_avg_pool2d(x, output_size=(1, 1))
+        scale = self.fc1(scale)
+        scale = self.ac1(scale)
+        scale = self.fc2(scale)
+        scale = self.ac2(scale)
+        return scale * x
+
 class EfficientNet(nn.Module):
     def __init__(self,
                  width_coefficient: float,

@@ -1,3 +1,4 @@
 # pytorch-classification
 大创项目的图像分类研究
 目前改动efficientnet更新模块暂未开源，所有模型更换evaluate模块。
+我们的efficientnet模型准确率和稳定性优于其他模型.
